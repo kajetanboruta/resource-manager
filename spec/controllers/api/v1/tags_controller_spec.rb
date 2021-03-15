@@ -1,7 +1,7 @@
 require 'rails_helper'
 
-RSpec.describe "Tags", type: :request do
-    describe "GET /tags" do
+RSpec.describe "Api::V1::TagsController", type: :request do
+    describe "GET api/v1/tags" do
         it "returns list of all tags" do
             create(:tag, name: 'Tag 1')
             create(:tag, name: 'Tag 2')
