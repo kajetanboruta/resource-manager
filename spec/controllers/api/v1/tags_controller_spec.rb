@@ -18,7 +18,15 @@ RSpec.describe "Api::V1::TagsController", type: :request do
     end    
     describe "GET /tags/:id" do
         it "returns tag by id" do
+            tag1 = create(:tag, name: 'Tag 1')
             
+            get 'api/v1/tags'
+        
+            expect(response).to have_http_status(200)
+
+            json = JSON.parse(response.body)
+
+            expect(json['data'].first['attributes']['id']).to eq tag1.id
         end
         context "when no tag_id matches given id" do
             it 'returns error' do
@@ -28,7 +36,10 @@ RSpec.describe "Api::V1::TagsController", type: :request do
     end
     describe "POST /tags" do
         it "creates new tag" do
-            
+
+            post 'api/v1/tags', params: { :tag => 'ruby'}
+
+            expect(JSON.parse(response.body)['tag']).to eq('ruby')
         end
         context 'when no tag_category selected' do
             it 'returns error' do
