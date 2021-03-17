@@ -8,11 +8,18 @@ RSpec.describe 'Leads', type: :request do
       create(:lead, name: 'Lead 3')
 
       get '/api/v1/leads'
+
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
+      leads = json['data']
 
-      expect(json['data'].first['attributes']['name']).to eq 'Lead 1'
-      expect(json['data'].count).to eq Lead.count
+      expect(leads[0]['attributes']['name']).to eq 'Lead 1'
+      expect(leads[0]['type']).to eq 'leads'
+      expect(leads[1]['attributes']['name']).to eq 'Lead 2'
+      expect(leads[1]['type']).to eq 'leads'
+      expect(leads[2]['attributes']['name']).to eq 'Lead 3'
+      expect(leads[2]['type']).to eq 'leads'
+      expect(json['data'].count).to eq 3
     end
   end
   describe 'GET /leads/:id' do
@@ -20,10 +27,13 @@ RSpec.describe 'Leads', type: :request do
       lead1 = create(:lead, name: 'Lead 1')
 
       get "/api/v1/leads/#{lead1.id}"
+
       expect(response).to have_http_status(:ok)
+
       json = JSON.parse(response.body)
 
       expect(json['data']['attributes']['name']).to eq 'Lead 1'
+      expect(json['data']['type']).to eq 'leads'
     end
     context 'when no lead_id matches given id' do
       it 'returns error' do
@@ -46,6 +56,7 @@ RSpec.describe 'Leads', type: :request do
       headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
 
       post '/api/v1/leads', params: hash, headers: headers
+
       json = JSON.parse(response.body)
 
       expect(response.content_type).to eq('application/vnd.api+json')
@@ -68,7 +79,9 @@ RSpec.describe 'Leads', type: :request do
       }.stringify_keys.to_json
 
       put "/api/v1/leads/#{lead.id}", params: hash, headers: headers
+
       json = JSON.parse(response.body)
+
       expect(json['data']['attributes']['name']).to eq 'updated lead'
     end
     context 'when no lead_id matches given id' do
@@ -96,7 +109,7 @@ RSpec.describe 'Leads', type: :request do
 
       delete "/api/v1/leads/#{lead_to_remove.id}"
 
-      expect(response).to have_http_status(204)
+      expect(response).to have_http_status(:success)
     end
     context 'when no id matches given id' do
       it 'returns error' do
