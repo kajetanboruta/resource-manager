@@ -1,10 +1,7 @@
 module Api
     module V1
-        class TagsController < ApiController
-            def index
-                
-            end
+        class TagsController < ApplicationController
+            
         end
     end
 end
-
