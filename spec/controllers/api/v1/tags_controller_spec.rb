@@ -22,6 +22,7 @@ RSpec.describe 'Tags', type: :request do
       expect(tags.count).to eq 2
     end
   end
+
   describe 'GET /tags/:id' do
     it 'returns tag by id' do
       tag1 = create(:tag, name: 'Tag 1')
@@ -33,6 +34,7 @@ RSpec.describe 'Tags', type: :request do
       json = JSON.parse(response.body)
       expect(json['data']['id'].to_i).to eq tag1.id
     end
+  
     context 'when no tag_id matches given id' do
       it 'returns error' do
         get '/api/v1/tags/1'
@@ -41,6 +43,7 @@ RSpec.describe 'Tags', type: :request do
       end
     end
   end
+
   describe 'POST /tags' do
     it 'creates new tag' do
       headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
@@ -61,11 +64,13 @@ RSpec.describe 'Tags', type: :request do
 
       expect(json['data']['attributes']['name']).to eq('ruby')
     end
+  
     context 'when no tag_category selected' do
       it 'returns error' do
       end
     end
   end
+  
   describe 'PUT /tags/:id' do
     it 'updates tag by id' do
       tag1 = create(:tag, name: 'ruby')
@@ -85,6 +90,7 @@ RSpec.describe 'Tags', type: :request do
       json = JSON.parse(response.body)
       expect(json['data']['attributes']['name']).to eq('ruby_new')
     end
+    
     context 'when no tag_id matches given id' do
       it 'returns error' do
         headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
@@ -103,11 +109,13 @@ RSpec.describe 'Tags', type: :request do
         expect(response).to have_http_status(:not_found)
       end
     end
+    
     context 'when no tag_category selected' do
       it 'returns error' do
       end
     end
   end
+
   describe 'DELETE /tags/:id' do
     it 'removes tag by id' do
       tag1 = create(:tag, name: 'ruby')
@@ -116,6 +124,7 @@ RSpec.describe 'Tags', type: :request do
 
       expect(response).to have_http_status(:success)
     end
+  
     context 'when no id matches given id' do
       it 'returns error' do
         delete '/api/v1/tags/1'
