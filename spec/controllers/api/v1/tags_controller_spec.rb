@@ -5,7 +5,8 @@ RSpec.describe 'Tags', type: :request do
     it 'returns list of all tags' do
       tag_category1 = create(:tag_category, name: 'programming language')
       tag1 = create(:tag, name: 'Ruby', tag_category_id: tag_category1.id)
-      tag2 = create(:tag, name: 'JS', tag_category_id: tag_category1.id)
+      tag2 = create(:tag, name: 'JS', tag_category: tag_category1)
+      
 
       get '/api/v1/tags'
 
@@ -13,7 +14,6 @@ RSpec.describe 'Tags', type: :request do
 
       json = JSON.parse(response.body)
       tags = json['data']
-
       expect(tags[0]['type']).to eq 'tags'
       expect(tags[0]['links']['self']).to eq "http://www.example.com/api/v1/tags/#{tag1.id}"
       expect(tags[0]['attributes']['name']).to eq 'Ruby'

@@ -37,8 +37,12 @@ ActiveRecord::Schema.define(version: 2021_03_10_124008) do
 
   create_table "tag_assignments", force: :cascade do |t|
     t.float "weight"
+    t.bigint "tag_id"
+    t.bigint "resource_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["resource_id"], name: "index_tag_assignments_on_resource_id"
+    t.index ["tag_id"], name: "index_tag_assignments_on_tag_id"
   end
 
   create_table "tag_categories", force: :cascade do |t|
