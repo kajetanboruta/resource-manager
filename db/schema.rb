@@ -49,8 +49,10 @@ ActiveRecord::Schema.define(version: 2021_03_10_124008) do
 
   create_table "tags", force: :cascade do |t|
     t.string "name"
+    t.bigint "tag_category_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["tag_category_id"], name: "index_tags_on_tag_category_id"
   end
 
 end

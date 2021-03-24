@@ -3,9 +3,9 @@ require 'rails_helper'
 RSpec.describe 'Tags', type: :request do
   describe 'GET api/v1/tags' do
     it 'returns list of all tags' do
-      tag1 = create(:tag, name: 'Tag 1')
-      tag2 = create(:tag, name: 'Tag 2')
-
+      tag_category1 = create(:tag_category, name: 'programming language')
+      tag1 = create(:tag, name: 'Tag 1', tag_category_id: tag_category1)
+      tag2 = create(:tag, name: 'Tag 2', tag_category_id: tag_category1)
       get '/api/v1/tags'
 
       expect(response).to have_http_status(:success)
@@ -47,16 +47,26 @@ RSpec.describe 'Tags', type: :request do
   describe 'POST /tags' do
     it 'creates new tag' do
       headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
+      tag_category1 = create(:tag_category, name: "programming language")
       hash = {
         data: {
           type: 'tags',
           attributes: {
             name: 'ruby'
+          },
+          relationships: {
+            tag_category: {
+              data: {
+                type: 'tag_category',
+                id: tag_category1.id
+              }
+            }
           }
         }
       }.stringify_keys.to_json
 
       post '/api/v1/tags', params: hash, headers: headers
+      binding.pry
 
       expect(response).to have_http_status(:success)
 
@@ -80,7 +90,7 @@ RSpec.describe 'Tags', type: :request do
           type: 'tags',
           id: tag1.id,
           attributes: {
-            name: 'ruby_new'
+            name: 'ruby_new',
           }
         }
       }.stringify_keys.to_json
