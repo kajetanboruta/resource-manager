@@ -37,14 +37,14 @@ RSpec.describe 'Tags', type: :request do
     end
 
     context 'when no tag_id matches given id' do
-      it 'returns error' do
+      it 'returns 404 http code, not found' do
         get '/api/v1/tags/1'
-        
+
         json = JSON.parse(response.body)
         errors = json.fetch('errors')
         expect(response).to have_http_status(:not_found)
         expect(errors[0]['status']).to eq('404')
-        expect(errors[0]['detail']).to eq("The record identified by 1 could not be found.")
+        expect(errors[0]['detail']).to eq('The record identified by 1 could not be found.')
       end
     end
   end
