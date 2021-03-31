@@ -3,16 +3,7 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :tags
-    end
-  end
-
-  namespace :api do
-    namespace :v1 do
       jsonapi_resources :leads
-    end
-  end
-  namespace :api do
-    namespace :v1 do
       jsonapi_resources :resources
     end
   end

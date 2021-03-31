@@ -3,49 +3,165 @@ require 'rails_helper'
 RSpec.describe 'Resources', type: :request do
   describe 'GET /resources' do
     it 'returns list of all resources' do
-      resource1 = create(:resource, name: 'ruby article', description: 'short description', url: 'www.sample.com/article')
-      resource2 = create(:resource, name: 'ember project', description: 'long description', url: 'www.sample.com/project')
-
+      resource_type1 = create(:resource_type, name: 'article')
+      resource1 = create(:resource, name: 'ruby article', description: 'short description',
+                         url: 'www.sample.com/article', resource_type: resource_type1)
+      resource2 = create(:resource, name: 'ember project', description: 'long description',
+                         url: 'www.sample.com/project', resource_type: resource_type1)
       get '/api/v1/resources'
 
       expect(response).to have_http_status(:ok)
-
       json = JSON.parse(response.body)
       resources = json['data']
-
-      expect(resources[0]['attributes']['name']).to eq 'ruby article'
-      expect(resources[0]['attributes']['description']).to eq 'short description'
-      expect(resources[0]['attributes']['url']).to eq 'www.sample.com/article'
-      expect(resources[0]['type']).to eq 'resources'
-      expect(resources[1]['attributes']['name']).to eq 'ember project'
-      expect(resources[1]['attributes']['description']).to eq 'long description'
-      expect(resources[1]['attributes']['url']).to eq 'www.sample.com/project'
-      expect(resources[1]['type']).to eq 'resources'
+      resource1 = resources[0]
+      resource2 = resources[1]
+      expect(resource1['attributes']['name']).to eq 'ruby article'
+      expect(resource1['attributes']['description']).to eq 'short description'
+      expect(resource1['attributes']['url']).to eq 'www.sample.com/article'
+      expect(resource1['type']).to eq 'resources'
+      expect(resource1['links']['self']).to eq "http://www.example.com/api/v1/resources/#{resource1['id']}"
+      expect(resource2['attributes']['name']).to eq 'ember project'
+      expect(resource2['attributes']['description']).to eq 'long description'
+      expect(resource2['attributes']['url']).to eq 'www.sample.com/project'
+      expect(resource2['type']).to eq 'resources'
+      expect(resource2['links']['self']).to eq "http://www.example.com/api/v1/resources/#{resource2['id']}"
       expect(json['data'].count).to eq 2
     end
+
+    context 'when sort parameter is provided' do
+      context 'when provided parameter is name' do
+        it 'returns resources sorted ascending by name' do
+          resource_type1 = create(:resource_type, name: 'article')
+          resource_type2 = create(:resource_type, name: 'project')
+          resource_type3 = create(:resource_type, name: 'blog post')
+          resource1 = create(:resource, name: 'ruby article', description: 'short description',
+                             url: 'www.sample.com/article', resource_type: resource_type1)
+          resource2 = create(:resource, name: 'ember project', description: 'long description',
+                             url: 'www.sample.com/project', resource_type: resource_type2)
+          resource3 = create(:resource, name: 'blog post about react', description: 'some description',
+                             url: 'www.sample.com/blogpost', resource_type: resource_type3)
+
+          get '/api/v1/resources?sort=name'
+
+          expect(response).to have_http_status(:ok)
+          json = JSON.parse(response.body)
+          resources = json['data']
+          resource1 = resources[0]
+          resource2 = resources[1]
+          resource3 = resources[2]
+          expect(resource1['attributes']['name']).to eq 'blog post about react'
+          expect(resource1['attributes']['description']).to eq 'some description'
+          expect(resource1['attributes']['url']).to eq 'www.sample.com/blogpost'
+          expect(resource1['type']).to eq 'resources'
+          expect(resource1['links']['self']).to eq "http://www.example.com/api/v1/resources/#{resource1['id']}"
+          expect(resource2['attributes']['name']).to eq 'ember project'
+          expect(resource2['attributes']['description']).to eq 'long description'
+          expect(resource2['attributes']['url']).to eq 'www.sample.com/project'
+          expect(resource2['type']).to eq 'resources'
+          expect(resource2['links']['self']).to eq "http://www.example.com/api/v1/resources/#{resource2['id']}"
+          expect(resource3['attributes']['name']).to eq 'ruby article'
+          expect(resource3['attributes']['description']).to eq 'short description'
+          expect(resource3['attributes']['url']).to eq 'www.sample.com/article'
+          expect(resource3['type']).to eq 'resources'
+          expect(resource3['links']['self']).to eq "http://www.example.com/api/v1/resources/#{resource3['id']}"
+          expect(json['data'].count).to eq 3
+        end
+      end
+
+      context 'when provided parameter is description' do
+        it 'returns resources sorted ascending by description' do
+          resource_type1 = create(:resource_type, name: 'article')
+          resource_type2 = create(:resource_type, name: 'project')
+          resource_type3 = create(:resource_type, name: 'blog post')
+          resource1 = create(:resource, name: 'ruby article', description: 'short description',
+                             url: 'www.sample.com/article', resource_type: resource_type1)
+          resource2 = create(:resource, name: 'ember project', description: 'long description',
+                             url: 'www.sample.com/project', resource_type: resource_type2)
+          resource3 = create(:resource, name: 'blog post about react', description: 'some description',
+                             url: 'www.sample.com/blogpost', resource_type: resource_type3)
+
+          get '/api/v1/resources?sort=description'
+
+          expect(response).to have_http_status(:ok)
+          json = JSON.parse(response.body)
+          resources = json['data']
+          resource1 = resources[0]
+          resource2 = resources[1]
+          resource3 = resources[2]
+          expect(resource1['attributes']['name']).to eq 'ember project'
+          expect(resource1['attributes']['description']).to eq 'long description'
+          expect(resource1['attributes']['url']).to eq 'www.sample.com/project'
+          expect(resource1['type']).to eq 'resources'
+          expect(resource1['links']['self']).to eq "http://www.example.com/api/v1/resources/#{resource1['id']}"
+          expect(resource2['attributes']['name']).to eq 'ruby article'
+          expect(resource2['attributes']['description']).to eq 'short description'
+          expect(resource2['attributes']['url']).to eq 'www.sample.com/article'
+          expect(resource2['type']).to eq 'resources'
+          expect(resource2['links']['self']).to eq "http://www.example.com/api/v1/resources/#{resource2['id']}"
+          expect(resource3['attributes']['name']).to eq 'blog post about react'
+          expect(resource3['attributes']['description']).to eq 'some description'
+          expect(resource3['attributes']['url']).to eq 'www.sample.com/blogpost'
+          expect(resource3['type']).to eq 'resources'
+          expect(resource3['links']['self']).to eq "http://www.example.com/api/v1/resources/#{resource3['id']}"
+          expect(json['data'].count).to eq 3
+        end
+      end
+    end
+
+    context 'when filter parameter is given' do
+      context 'when provided parameter is resource type id' do
+        it 'returns resources by given resource type' do
+          resource_type1 = create(:resource_type, name: 'article')
+          resource_type2 = create(:resource_type, name: 'project')
+          resource1 = create(:resource, name: 'ruby article', description: 'short description',
+                             url: 'www.sample.com/article', resource_type: resource_type1)
+          resource2 = create(:resource, name: 'ember project', description: 'long description',
+                             url: 'www.sample.com/project', resource_type: resource_type2)
+
+          get "/api/v1/resources?filter[resource_type_id]=#{resource_type2.id}"
+
+          expect(response).to have_http_status(:ok)
+          json = JSON.parse(response.body)
+          resources = json['data']
+          resource = resources[0]
+          expect(resource['attributes']['name']).to eq 'ember project'
+          expect(resource['attributes']['description']).to eq 'long description'
+          expect(resource['attributes']['url']).to eq 'www.sample.com/project'
+          expect(resource['links']['self']).to eq "http://www.example.com/api/v1/resources/#{resource['id']}"
+          expect(resource['type']).to eq 'resources'
+          expect(json['data'].count).to eq 1
+        end
+      end
+    end
   end
+
   describe 'GET /resources/:id' do
     it 'returns resource by id' do
-      resource1 = create(:resource, name: 'resource 1')
+      resource_type1 = create(:resource_type, name: 'article')
+      resource1 = create(:resource, name: 'ruby article', resource_type: resource_type1)
 
       get "/api/v1/resources/#{resource1.id}"
 
       expect(response).to have_http_status(:ok)
-
       json = JSON.parse(response.body)
-
-      expect(json['data']['attributes']['name']).to eq 'resource 1'
+      expect(json['data']['attributes']['name']).to eq 'ruby article'
     end
     context 'when no resource_id matches given id' do
-      it 'returns error' do
+      it 'returns 404 http code, not found' do
         get '/api/v1/resources/1'
 
+        json = JSON.parse(response.body)
+        errors = json.fetch('errors')
         expect(response).to have_http_status(:not_found)
+        expect(errors[0]['status']).to eq('404')
+        expect(errors[0]['detail']).to eq('The record identified by 1 could not be found.')
       end
     end
   end
+
   describe 'POST /resources' do
     it 'creates new resource' do
+      resource_type1 = create(:resource_type, name: 'article')
       hash = {
         data: {
           type: 'resources',
@@ -53,6 +169,14 @@ RSpec.describe 'Resources', type: :request do
             name: 'article',
             description: 'description of the article',
             url: 'www.samplesite.com/article'
+          },
+          relationships: {
+            'resource-type': {
+              data: {
+                type: 'resource-types',
+                id: resource_type1.id
+              }
+            }
           }
         }
       }.stringify_keys.to_json
@@ -61,17 +185,42 @@ RSpec.describe 'Resources', type: :request do
       post '/api/v1/resources', params: hash, headers: headers
 
       json = JSON.parse(response.body)
-
       expect(response.content_type).to eq('application/vnd.api+json')
       expect(response).to have_http_status(:created)
       expect(json['data']['attributes']['name']).to eq 'article'
       expect(json['data']['attributes']['description']).to eq 'description of the article'
       expect(json['data']['attributes']['url']).to eq 'www.samplesite.com/article'
     end
+
+    context 'when tag category parameters is not provided' do
+      it 'returns 422 http code, unprocessable_entity' do
+        headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
+        hash = {
+          data: {
+            type: 'resources',
+            attributes: {
+              name: 'article',
+              description: 'description of the article',
+              url: 'www.samplesite.com/article'
+            }
+          }
+        }.stringify_keys.to_json
+
+        post '/api/v1/resources', params: hash, headers: headers
+
+        json = JSON.parse(response.body)
+        errors = json.fetch('errors')
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(errors[0]['status']).to eq('422')
+        expect(errors[0]['detail']).to eq("resource-type - can't be blank")
+      end
+    end
   end
+
   describe 'PUT /resources/:id' do
-    it 'updates resource by id' do
-      resource = create(:resource, name: 'new resource', description: 'old description', url: 'www.oldsite.com')
+    it 'updates given resource' do
+      resource_type1 = create(:resource_type, name: 'article')
+      resource = create(:resource, name: 'new resource', description: 'old description', url: 'www.oldsite.com', resource_type: resource_type1)
       headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
       hash = {
         data: {
@@ -81,20 +230,29 @@ RSpec.describe 'Resources', type: :request do
             name: 'updated resource',
             description: 'new description of the article',
             url: 'www.newsite.com'
+          }, relationships: {
+            'resource-type': {
+              data: {
+                type: 'resource-types',
+                id: resource_type1.id
+              }
+            }
           }
         }
       }.stringify_keys.to_json
 
-      put "/api/v1/resources/#{resource.id}", params: hash, headers: headers
+      expect {
+        put "/api/v1/resources/#{resource.id}", params: hash, headers: headers
+      }.to change { resource.reload.name }.from('new resource').to('updated resource')
 
       json = JSON.parse(response.body)
-
       expect(json['data']['attributes']['name']).to eq 'updated resource'
       expect(json['data']['attributes']['description']).to eq 'new description of the article'
       expect(json['data']['attributes']['url']).to eq 'www.newsite.com'
     end
+
     context 'when no resource_id matches given id' do
-      it 'returns error' do
+      it 'returns 404 http code, not found' do
         headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
         hash = {
           data: {
@@ -108,23 +266,33 @@ RSpec.describe 'Resources', type: :request do
 
         put '/api/v1/resources/1', params: hash, headers: headers
 
+        json = JSON.parse(response.body)
+        errors = json.fetch('errors')
         expect(response).to have_http_status(:not_found)
+        expect(errors[0]['status']).to eq('404')
+        expect(errors[0]['detail']).to eq('The record identified by 1 could not be found.')
       end
     end
   end
+
   describe 'DELETE /resources/:id' do
     it 'removes resource by id' do
-      resource_to_remove = create(:resource, name: 'resource 1')
+      resource_type1 = create(:resource_type, name: 'article')
+      resource_to_remove = create(:resource, name: 'resource 1', resource_type: resource_type1)
 
       delete "/api/v1/resources/#{resource_to_remove.id}"
 
       expect(response).to have_http_status(204)
     end
     context 'when no id matches given id' do
-      it 'returns error' do
+      it 'returns 404 http code, not found' do
         delete '/api/v1/resources/1'
 
+        json = JSON.parse(response.body)
+        errors = json.fetch('errors')
         expect(response).to have_http_status(:not_found)
+        expect(errors[0]['status']).to eq('404')
+        expect(errors[0]['detail']).to eq('The record identified by 1 could not be found.')
       end
     end
   end
