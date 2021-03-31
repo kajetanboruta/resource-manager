@@ -125,9 +125,9 @@ RSpec.describe 'Tags', type: :request do
         }
       }.stringify_keys.to_json
 
-      expect { put "/api/v1/tags/#{tag1.id}", params: hash, headers: headers }.to change {
-                                                                                    tag1.reload.name
-                                                                                  }.from('ruby').to('ruby_new')
+      expect { 
+        put "/api/v1/tags/#{tag1.id}", params: hash, headers: headers
+      }.to change { tag1.reload.name }.from('ruby').to('ruby_new')
 
       json = JSON.parse(response.body)
       expect(json['data']['attributes']['name']).to eq('ruby_new')
