@@ -13,12 +13,14 @@ RSpec.describe 'Tags', type: :request do
 
       json = JSON.parse(response.body)
       tags = json['data']
-      expect(tags[0]['type']).to eq 'tags'
-      expect(tags[0]['links']['self']).to eq "http://www.example.com/api/v1/tags/#{tag1.id}"
-      expect(tags[0]['attributes']['name']).to eq 'Ruby'
-      expect(tags[1]['type']).to eq 'tags'
-      expect(tags[1]['links']['self']).to eq "http://www.example.com/api/v1/tags/#{tag2.id}"
-      expect(tags[1]['attributes']['name']).to eq 'JS'
+      tag1 = tags[0]
+      expect(tag1['type']).to eq 'tags'
+      expect(tag1['links']['self']).to eq "http://www.example.com/api/v1/tags/#{tag1.id}"
+      expect(tag1['attributes']['name']).to eq 'Ruby'
+      tag2 = tags[1]
+      expect(ttag2['type']).to eq 'tags'
+      expect(tag2['links']['self']).to eq "http://www.example.com/api/v1/tags/#{tag2.id}"
+      expect(tag2['attributes']['name']).to eq 'JS'
       expect(tags.count).to eq 2
     end
   end
