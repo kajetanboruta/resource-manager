@@ -5,6 +5,7 @@ module Api
 
       has_one :tag_category
 
+      paginator :paged
       filter :tag_category
       sort :name
     end

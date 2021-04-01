@@ -3,9 +3,8 @@ require 'rails_helper'
 RSpec.describe 'Tags', type: :request do
   describe 'GET api/v1/tags' do
     it 'returns list of all tags' do
-      tag_category1 = create(:tag_category, name: 'programming language')
-      tag_ruby = create(:tag, name: 'Ruby', tag_category_id: tag_category1.id)
-      tag_js = create(:tag, name: 'JS', tag_category: tag_category1)
+      tag_ruby = create(:tag, name: 'Ruby')
+      tag_js = create(:tag, name: 'JS')
       get '/api/v1/tags'
 
       expect(response).to have_http_status(:success)
@@ -22,15 +21,13 @@ RSpec.describe 'Tags', type: :request do
       expect(tags.count).to eq 2
     end
 
-    it 'returns first page with 3 tags for each page.' do
-      tag_category1 = create(:tag_category, name: 'programming language')
-      tag_ruby = create(:tag, name: 'Ruby', tag_category_id: tag_category1.id)
-      tag_js = create(:tag, name: 'JS', tag_category: tag_category1)
-      tag_java = create(:tag, name: 'Java', tag_category: tag_category1)
-      create(:tag, name: 'C', tag_category: tag_category1)
-      page_size_const = 3
+    it 'returns first page with 2 tags' do
+      tag_ruby = create(:tag, name: 'Ruby')
+      tag_js = create(:tag, name: 'JS')
+      create(:tag, name: 'Java')
+      create(:tag, name: 'C')
 
-      get "/api/v1/tags?page[size]=#{page_size_const}"
+      get '/api/v1/tags', { params: { page: { size: 2 } } }
 
       expect(response).to have_http_status(:success)
       json = JSON.parse(response.body)
@@ -43,20 +40,16 @@ RSpec.describe 'Tags', type: :request do
       expect(tag2['type']).to eq 'tags'
       expect(tag2['links']['self']).to eq "http://www.example.com/api/v1/tags/#{tag_js.id}"
       expect(tag2['attributes']['name']).to eq 'JS'
-      tag3 = tags[2]
-      expect(tag3['type']).to eq 'tags'
-      expect(tag3['links']['self']).to eq "http://www.example.com/api/v1/tags/#{tag_java.id}"
-      expect(tag3['attributes']['name']).to eq 'Java'
+      expect(json['links']['next']).to eq 'http://www.example.com/api/v1/tags?page%5Bnumber%5D=2&page%5Bsize%5D=2'
     end
 
     it 'returns sorted tags by name' do
-      tag_category1 = create(:tag_category, name: 'programming language')
-      create(:tag, name: 'ruby', tag_category_id: tag_category1.id)
-      create(:tag, name: 'js', tag_category: tag_category1)
-      create(:tag, name: 'java', tag_category: tag_category1)
-      create(:tag, name: 'c', tag_category: tag_category1)
+      create(:tag, name: 'ruby')
+      create(:tag, name: 'js')
+      create(:tag, name: 'java')
+      create(:tag, name: 'c')
 
-      get '/api/v1/tags?sort=name'
+      get '/api/v1/tags', params: { sort: 'name' }
 
       expect(response).to have_http_status(:success)
       json = JSON.parse(response.body)
@@ -97,8 +90,7 @@ RSpec.describe 'Tags', type: :request do
 
   describe 'GET /tags/:id' do
     it 'returns tag by id' do
-      tag_category1 = create(:tag_category, name: 'programming language')
-      tag1 = create(:tag, name: 'Ruby', tag_category: tag_category1)
+      tag1 = create(:tag, name: 'Ruby')
 
       get "/api/v1/tags/#{tag1.id}"
 
@@ -175,8 +167,7 @@ RSpec.describe 'Tags', type: :request do
 
   describe 'PUT /tags/:id' do
     it 'updates tag by id' do
-      tag_category1 = create(:tag_category, name: 'programming language')
-      tag1 = create(:tag, name: 'ruby', tag_category: tag_category1)
+      tag1 = create(:tag, name: 'ruby')
       headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
       hash = {
         data: {
@@ -184,14 +175,6 @@ RSpec.describe 'Tags', type: :request do
           id: tag1.id,
           attributes: {
             name: 'ruby_new'
-          },
-          relationships: {
-            'tag-category': {
-              data: {
-                type: 'tag-categories',
-                id: tag_category1.id
-              }
-            }
           }
         }
       }.stringify_keys.to_json
@@ -207,7 +190,7 @@ RSpec.describe 'Tags', type: :request do
 
     it 'updates tag relationship' do
       tag_category1 = create(:tag_category, name: 'new version pack')
-      tag1 = create(:tag, name: 'ruby', tag_category_id: tag_category1.id)
+      tag1 = create(:tag, name: 'ruby', tag_category: tag_category1)
       headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
       hash = {
         data: {
@@ -275,8 +258,7 @@ RSpec.describe 'Tags', type: :request do
 
     context 'when any tag.id matches provided id' do
       it 'removes tag by id' do
-        tag_category1 = create(:tag_category, name: 'programming language')
-        tag1 = create(:tag, name: 'ruby', tag_category: tag_category1)
+        tag1 = create(:tag, name: 'ruby')
 
         delete "/api/v1/tags/#{tag1.id}"
 
