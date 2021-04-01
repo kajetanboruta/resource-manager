@@ -12,18 +12,18 @@ RSpec.describe 'Leads', type: :request do
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
       leads = json['data']
-      lead1 = leads[0]
-      lead2 = leads[1]
-      lead3 = leads[2]
-      expect(lead1['attributes']['name']).to eq 'Lead 1'
-      expect(lead1['type']).to eq 'leads'
-      expect(lead1['links']['self']).to eq "http://www.example.com/api/v1/leads/#{lead1['id']}"
-      expect(lead2['attributes']['name']).to eq 'Lead 2'
-      expect(lead2['type']).to eq 'leads'
-      expect(lead2['links']['self']).to eq "http://www.example.com/api/v1/leads/#{lead2['id']}"
-      expect(lead3['attributes']['name']).to eq 'Lead 3'
-      expect(lead3['type']).to eq 'leads'
-      expect(lead3['links']['self']).to eq "http://www.example.com/api/v1/leads/#{lead3['id']}"
+      first_lead = leads[0]
+      second_lead = leads[1]
+      third_lead = leads[2]
+      expect(first_lead['attributes']['name']).to eq 'Lead 1'
+      expect(first_lead['type']).to eq 'leads'
+      expect(first_lead['links']['self']).to eq "http://www.example.com/api/v1/leads/#{lead1['id']}"
+      expect(second_lead['attributes']['name']).to eq 'Lead 2'
+      expect(second_lead['type']).to eq 'leads'
+      expect(second_lead['links']['self']).to eq "http://www.example.com/api/v1/leads/#{lead2['id']}"
+      expect(third_lead['attributes']['name']).to eq 'Lead 3'
+      expect(third_lead['type']).to eq 'leads'
+      expect(third_lead['links']['self']).to eq "http://www.example.com/api/v1/leads/#{lead3['id']}"
       expect(json['data'].count).to eq 3
     end
 
@@ -39,20 +39,44 @@ RSpec.describe 'Leads', type: :request do
           expect(response).to have_http_status(:ok)
           json = JSON.parse(response.body)
           leads = json['data']
-          lead1 = leads[0]
-          lead2 = leads[1]
-          lead3 = leads[2]
-          expect(lead1['attributes']['name']).to eq 'Lead A'
-          expect(lead1['type']).to eq 'leads'
-          expect(lead1['links']['self']).to eq "http://www.example.com/api/v1/leads/#{lead1['id']}"
-          expect(lead2['attributes']['name']).to eq 'Lead B'
-          expect(lead2['type']).to eq 'leads'
-          expect(lead2['links']['self']).to eq "http://www.example.com/api/v1/leads/#{lead2['id']}"
-          expect(lead3['attributes']['name']).to eq 'Lead C'
-          expect(lead3['type']).to eq 'leads'
-          expect(lead3['links']['self']).to eq "http://www.example.com/api/v1/leads/#{lead3['id']}"
+          first_lead = leads[0]
+          second_lead = leads[1]
+          third_lead = leads[2]
+          expect(first_lead['attributes']['name']).to eq 'Lead A'
+          expect(first_lead['type']).to eq 'leads'
+          expect(first_lead['links']['self']).to eq "http://www.example.com/api/v1/leads/#{lead3['id']}"
+          expect(second_lead['attributes']['name']).to eq 'Lead B'
+          expect(second_lead['type']).to eq 'leads'
+          expect(second_lead['links']['self']).to eq "http://www.example.com/api/v1/leads/#{lead1['id']}"
+          expect(third_lead['attributes']['name']).to eq 'Lead C'
+          expect(third_lead['type']).to eq 'leads'
+          expect(third_lead['links']['self']).to eq "http://www.example.com/api/v1/leads/#{lead2['id']}"
           expect(json['data'].count).to eq 3
         end
+      end
+    end
+
+    context 'when paginate parameter is given' do
+      it 'returns first page with 2 leads' do
+        lead_ruby = create(:lead, name: 'Microsoft')
+        lead_js = create(:lead, name: 'Apple')
+        create(:lead, name: 'IBM')
+
+        get '/api/v1/leads', params: { page: { size: 2 } }
+
+        expect(response).to have_http_status(:success)
+        json = JSON.parse(response.body)
+        leads = json['data']
+        lead1 = leads[0]
+        expect(leads.count).to eq 2
+        expect(lead1['type']).to eq 'leads'
+        expect(lead1['links']['self']).to eq "http://www.example.com/api/v1/leads/#{lead_ruby.id}"
+        expect(lead1['attributes']['name']).to eq 'Microsoft'
+        lead2 = leads[1]
+        expect(lead2['type']).to eq 'leads'
+        expect(lead2['links']['self']).to eq "http://www.example.com/api/v1/leads/#{lead_js.id}"
+        expect(lead2['attributes']['name']).to eq 'Apple'
+        expect(json['links']['next']).to eq 'http://www.example.com/api/v1/leads?page%5Bnumber%5D=2&page%5Bsize%5D=2'
       end
     end
   end
@@ -84,7 +108,7 @@ RSpec.describe 'Leads', type: :request do
 
   describe 'POST /leads' do
     it 'creates new lead' do
-      hash = {
+      params = {
         data: {
           type: 'leads',
           attributes: {
@@ -94,7 +118,7 @@ RSpec.describe 'Leads', type: :request do
       }.stringify_keys.to_json
       headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
 
-      post '/api/v1/leads', params: hash, headers: headers
+      post '/api/v1/leads', params: params, headers: headers
 
       json = JSON.parse(response.body)
       expect(response.content_type).to eq('application/vnd.api+json')
@@ -107,7 +131,7 @@ RSpec.describe 'Leads', type: :request do
     it 'updates given lead' do
       lead = create(:lead, name: 'new lead')
       headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
-      hash = {
+      params = {
         data: {
           type: 'leads',
           id: lead.id,
@@ -118,7 +142,7 @@ RSpec.describe 'Leads', type: :request do
       }.stringify_keys.to_json
 
       expect {
-        put "/api/v1/leads/#{lead.id}", params: hash, headers: headers
+        put "/api/v1/leads/#{lead.id}", params: params, headers: headers
       }.to change { lead.reload.name }.from('new lead').to('updated lead')
 
       json = JSON.parse(response.body)
@@ -128,7 +152,7 @@ RSpec.describe 'Leads', type: :request do
     context 'when no lead_id matches given id' do
       it 'returns 404 http code, not found' do
         headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
-        hash = {
+        params = {
           data: {
             type: 'leads',
             id: '1',
@@ -138,7 +162,7 @@ RSpec.describe 'Leads', type: :request do
           }
         }.stringify_keys.to_json
 
-        put '/api/v1/leads/1', params: hash, headers: headers
+        put '/api/v1/leads/1', params: params, headers: headers
 
         json = JSON.parse(response.body)
         errors = json.fetch('errors')
@@ -157,6 +181,7 @@ RSpec.describe 'Leads', type: :request do
 
       expect(response).to have_http_status(:success)
     end
+
     context 'when no id matches given id' do
       it 'returns 404 http code, not found' do
         delete '/api/v1/leads/1'

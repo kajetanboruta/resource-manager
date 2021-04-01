@@ -5,6 +5,7 @@ module Api
 
       has_one :resource_type
 
+      paginator :paged
       filter :resource_type_id
     end
   end
