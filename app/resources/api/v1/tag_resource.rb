@@ -4,6 +4,9 @@ module Api
       attributes :name, :tag_category_id, :tag_category
 
       has_one :tag_category
+
+      filter :tag_category
+      sort :name
     end
   end
 end
