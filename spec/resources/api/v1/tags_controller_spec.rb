@@ -116,9 +116,8 @@ RSpec.describe 'Tags', type: :request do
 
   describe 'POST /tags' do
     it 'creates new tag by given parameters and returns persisted object' do
-      headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
       tag_category1 = create(:tag_category, name: 'programming language')
-      hash = {
+      params = {
         data: {
           type: 'tags',
           attributes: {
@@ -135,7 +134,7 @@ RSpec.describe 'Tags', type: :request do
         }
       }.stringify_keys.to_json
 
-      post '/api/v1/tags', params: hash, headers: headers
+      post_api('/api/v1/tags', params)
 
       expect(response).to have_http_status(:success)
       json = JSON.parse(response.body)
@@ -144,8 +143,7 @@ RSpec.describe 'Tags', type: :request do
 
     context 'when tag-category parameter is not provided' do
       it 'returns 422 http code, unprocessable_entity' do
-        headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
-        hash = {
+        params = {
           data: {
             type: 'tags',
             attributes: {
@@ -154,7 +152,7 @@ RSpec.describe 'Tags', type: :request do
           }
         }.stringify_keys.to_json
 
-        post '/api/v1/tags', params: hash, headers: headers
+        post_api('/api/v1/tags', params)
 
         expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
@@ -170,7 +168,7 @@ RSpec.describe 'Tags', type: :request do
     it 'updates tag by id' do
       tag1 = create(:tag, name: 'ruby')
       headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
-      hash = {
+      params = {
         data: {
           type: 'tags',
           id: tag1.id,
@@ -180,8 +178,9 @@ RSpec.describe 'Tags', type: :request do
         }
       }.stringify_keys.to_json
 
-      expect {
-        put "/api/v1/tags/#{tag1.id}", params: hash, headers: headers }
+      expect do
+        put "/api/v1/tags/#{tag1.id}", params: params, headers: headers
+      end
         .to change { tag1.reload.name }.from('ruby').to('ruby_new')
 
       expect(response).to have_http_status(:success)
@@ -193,7 +192,7 @@ RSpec.describe 'Tags', type: :request do
       tag_category1 = create(:tag_category, name: 'new version pack')
       tag1 = create(:tag, name: 'ruby', tag_category: tag_category1)
       headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
-      hash = {
+      params = {
         data: {
           type: 'tags',
           id: tag1.id,
@@ -211,7 +210,7 @@ RSpec.describe 'Tags', type: :request do
         }
       }.stringify_keys.to_json
 
-      put "/api/v1/tags/#{tag1.id}", params: hash, headers: headers
+      put "/api/v1/tags/#{tag1.id}", params: params, headers: headers
 
       expect(response).to have_http_status(:success)
       json = JSON.parse(response.body)
@@ -221,7 +220,7 @@ RSpec.describe 'Tags', type: :request do
     context 'when no tag_id matches given id' do
       it 'returns 404 http code, not found' do
         headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
-        hash = {
+        params = {
           data: {
             type: 'tags',
             id: 1,
@@ -231,7 +230,7 @@ RSpec.describe 'Tags', type: :request do
           }
         }.stringify_keys.to_json
 
-        put '/api/v1/tags/1', params: hash, headers: headers
+        put '/api/v1/tags/1', params: params, headers: headers
 
         expect(response).to have_http_status(:not_found)
         json = JSON.parse(response.body)
@@ -266,5 +265,13 @@ RSpec.describe 'Tags', type: :request do
         expect(response).to have_http_status(:success)
       end
     end
+  end
+
+  def post_api(path, params)
+    post path, params: params, headers: headers
+  end
+
+  def headers
+    { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
   end
 end
