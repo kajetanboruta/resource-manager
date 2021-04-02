@@ -1,0 +1,19 @@
+module Api
+  module V1
+    class LeadsController < lea
+      include ActionView::Rendering
+
+      # def show
+      #   respond_to do |format|
+      #     format.xlsx
+      #   end
+      # end
+
+      private
+
+      def render_to_body(options)
+        _render_to_body_with_renderer(options) || super
+      end
+    end
+  end
+end

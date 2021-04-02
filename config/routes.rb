@@ -5,6 +5,8 @@ Rails.application.routes.draw do
       resources :tags
       jsonapi_resources :leads
       jsonapi_resources :resources
+
+      resources :leads_export, only: :create
     end
   end
 end

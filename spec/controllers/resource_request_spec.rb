@@ -5,9 +5,9 @@ RSpec.describe 'Resources', type: :request do
     it 'returns list of all resources' do
       resource_type1 = create(:resource_type, name: 'article')
       resource1 = create(:resource, name: 'ruby article', description: 'short description',
-                                    url: 'www.sample.com/article')
+                         url: 'www.sample.com/article')
       resource2 = create(:resource, name: 'ember project', description: 'long description',
-                                    url: 'www.sample.com/project')
+                         url: 'www.sample.com/project')
 
       get '/api/v1/resources'
 
@@ -182,8 +182,7 @@ RSpec.describe 'Resources', type: :request do
       }.stringify_keys.to_json
       headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
 
-      post '/api/v1/resources', params: params, headers: headers
-
+      post_api '/api/v1/resources', params: params
       json = JSON.parse(response.body)
       expect(response.content_type).to eq('application/vnd.api+json')
       expect(response).to have_http_status(:created)
@@ -221,7 +220,7 @@ RSpec.describe 'Resources', type: :request do
     it 'updates given resource' do
       resource_type1 = create(:resource_type, name: 'article')
       resource = create(:resource, name: 'new resource', description: 'old description', url: 'www.oldsite.com',
-                                   resource_type: resource_type1)
+                        resource_type: resource_type1)
       headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
       params = {
         data: {
@@ -296,5 +295,9 @@ RSpec.describe 'Resources', type: :request do
         expect(errors[0]['detail']).to eq('The record identified by 1 could not be found.')
       end
     end
+
+  end
+  def post_api(url, data, header = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' })
+    post url, data, header
   end
 end

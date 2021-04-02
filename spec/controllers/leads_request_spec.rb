@@ -118,7 +118,7 @@ RSpec.describe 'Leads', type: :request do
       }.stringify_keys.to_json
       headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
 
-      post '/api/v1/leads', params: params, headers: headers
+      api_post('/api/v1/leads',options: { params: params })
 
       json = JSON.parse(response.body)
       expect(response.content_type).to eq('application/vnd.api+json')
@@ -151,7 +151,6 @@ RSpec.describe 'Leads', type: :request do
 
     context 'when no lead_id matches given id' do
       it 'returns 404 http code, not found' do
-        headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
         params = {
           data: {
             type: 'leads',
@@ -161,6 +160,7 @@ RSpec.describe 'Leads', type: :request do
             }
           }
         }.stringify_keys.to_json
+        headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
 
         put '/api/v1/leads/1', params: params, headers: headers
 
@@ -192,6 +192,16 @@ RSpec.describe 'Leads', type: :request do
         expect(errors[0]['status']).to eq('404')
         expect(errors[0]['detail']).to eq('The record identified by 1 could not be found.')
       end
+    end
+
+    end
+  context 'when export to xlsx' do
+    it 'renders xlsx file' do
+      lead = create(:lead, name: 'new lead')
+
+      post '/api/v1/leads_export'
+
+      expect(response).to have_http_status(:success)
     end
   end
 end
