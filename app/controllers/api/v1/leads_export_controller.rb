@@ -5,9 +5,7 @@ module Api
       include ActionController::MimeResponds
 
       def create
-        respond_to do |format|
-          format.xlsx { render :xlsx, template: 'api/v1/leads_export/leads' }
-        end
+        render :xlsx, template: 'api/v1/leads_export/leads.xlsx', locals: { leads: Lead.all }
       end
 
       private

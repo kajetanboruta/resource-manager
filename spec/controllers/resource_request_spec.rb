@@ -182,7 +182,7 @@ RSpec.describe 'Resources', type: :request do
       }.stringify_keys.to_json
       headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
 
-      post_api '/api/v1/resources', params: params
+      post '/api/v1/resources', params: params, headers: headers
       json = JSON.parse(response.body)
       expect(response.content_type).to eq('application/vnd.api+json')
       expect(response).to have_http_status(:created)
@@ -295,9 +295,5 @@ RSpec.describe 'Resources', type: :request do
         expect(errors[0]['detail']).to eq('The record identified by 1 could not be found.')
       end
     end
-
-  end
-  def post_api(url, data, header = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' })
-    post url, data, header
   end
 end

@@ -118,7 +118,7 @@ RSpec.describe 'Leads', type: :request do
       }.stringify_keys.to_json
       headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
 
-      api_post('/api/v1/leads',options: { params: params })
+      post '/api/v1/leads', params: params, headers: headers
 
       json = JSON.parse(response.body)
       expect(response.content_type).to eq('application/vnd.api+json')
@@ -200,6 +200,13 @@ RSpec.describe 'Leads', type: :request do
       lead = create(:lead, name: 'new lead')
 
       post '/api/v1/leads_export'
+
+      expect(response).to have_http_status(:success)
+    end
+  end
+  context 'when import to xlsx' do
+    it 'opens xlsx file' do
+      get '/api/v1/leads_import'
 
       expect(response).to have_http_status(:success)
     end

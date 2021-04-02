@@ -7,6 +7,7 @@ Rails.application.routes.draw do
       jsonapi_resources :resources
 
       resources :leads_export, only: :create
+      resources :leads_import, only: :index
     end
   end
 end
