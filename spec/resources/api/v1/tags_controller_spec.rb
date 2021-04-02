@@ -5,6 +5,7 @@ RSpec.describe 'Tags', type: :request do
     it 'returns list of all tags' do
       tag_ruby = create(:tag, name: 'Ruby')
       tag_js = create(:tag, name: 'JS')
+
       get '/api/v1/tags'
 
       expect(response).to have_http_status(:success)
