@@ -116,9 +116,8 @@ RSpec.describe 'Leads', type: :request do
           }
         }
       }.stringify_keys.to_json
-      headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
 
-      post '/api/v1/leads', params: params, headers: headers
+      post_api('/api/v1/leads', params)
 
       json = JSON.parse(response.body)
       expect(response.content_type).to eq('application/vnd.api+json')
@@ -193,5 +192,13 @@ RSpec.describe 'Leads', type: :request do
         expect(errors[0]['detail']).to eq('The record identified by 1 could not be found.')
       end
     end
+  end
+
+  def post_api(path, params)
+    post path, params: params, headers: headers
+  end
+
+  def headers
+    { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
   end
 end
