@@ -1,0 +1,6 @@
+wb = xlsx_package.workbook
+wb.add_worksheet(name: "Tags") do |sheet|
+  tags.each do |tag|
+    sheet.add_row [tag.name]
+  end
+end
