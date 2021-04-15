@@ -7,6 +7,7 @@ Rails.application.routes.draw do
       jsonapi_resources :tags
 
       resources :tags_export, only: :create
+      resources :contacts_form, only: :create
     end
   end
 end

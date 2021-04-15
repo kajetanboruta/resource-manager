@@ -8,7 +8,6 @@ RSpec.describe UserMailer, type: :mailer do
 
     expect(mail.subject).to eq('Tags')
     expect(mail.to).to eq(['to@example.org'])
-    expect(mail.from).to eq(['from@example.com'])
   end
 
   it 'renders the attachments' do

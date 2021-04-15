@@ -1,9 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Tags_Export', type: :request do
-  include ActiveSupport::Testing::TimeHelpers
   describe 'POST /tags_export/' do
-    it 'schedules SendExportedTagsWorker in 5 minutes with given email' do
+    it 'schedules SendExportedTagsWorker in 3 minutes with given email' do
       params = {
         data: {
           attributes: {
@@ -12,12 +11,12 @@ RSpec.describe 'Tags_Export', type: :request do
         }
       }.stringify_keys.to_json
       allow(SendExportedTagsWorker).to receive(:perform_at)
-      
+
       travel 1.day do
         post_api('/api/v1/tags_export', params)
 
-        expect(response).to have_http_status(:success)
-        expect(SendExportedTagsWorker).to have_received(:perform_at).with(3.minutes.from_now, 'test@test.com')
+        expect(response).to have_http_status(:success)  
+        expect(SendExportedTagsWorker).to have_received(:perform_at).with(3.minutes.from_now, email: 'test@test.com')
       end
     end
   end
