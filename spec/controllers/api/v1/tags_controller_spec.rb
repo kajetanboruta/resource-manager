@@ -132,9 +132,7 @@ RSpec.describe 'Tags', type: :request do
             }
           }
         }
-      }.stringify_keys.to_json
-
-      binding.pry
+      }
 
       post_api('/api/v1/tags', params)
 
@@ -270,7 +268,6 @@ RSpec.describe 'Tags', type: :request do
   end
 
   def post_api(path, params)
-    binding.pry
     post path, params: params
     # , headers: headers
   end

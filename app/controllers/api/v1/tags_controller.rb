@@ -11,23 +11,21 @@ module Api
         render json: json
       end
 
-      def show(id)
-        json = {
-          data: TagSerializer.new(Tag.where(id: id)).to_hash
-        }
-      end
-
       def create
-        binding.pry
-        v = tag_params
-        form = TagForm.new(v[:attributes][:name], v[:relationships][:id])
+        form = TagForm.new(Tag.new, tag_params)
+        if form.save
+          render json: { data: TagSerializer.new(form.send(:resource))}
+        else
+        end
+
       end
 
       private
 
       def tag_params
-        JSON.parse(params)['data'].each_with_object({}) do |(item, value), hash|
-          hash[item] = value
+        unsafe_params = params.to_unsafe_hash
+        unsafe_params['data']['relationships'].each_with_object(unsafe_params['data']['attributes']) do |(key, value), attributes|
+          attributes["#{key.underscore}_id"] = value['data']['id']
         end
       end
     end

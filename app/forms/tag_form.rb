@@ -7,10 +7,6 @@ class TagForm < Patterns::Form
   private
 
   def persist
-    create_tag
-  end
-
-  def create_tag
-    CreateTagService.new(:name, :tag_category_id).call
+    resource.update(attributes)
   end
 end
