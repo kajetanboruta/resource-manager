@@ -99,10 +99,6 @@ GEM
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
-    jsonapi-resources (0.10.4)
-      activerecord (>= 4.1)
-      concurrent-ruby
-      railties (>= 4.1)
     listen (3.5.1)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -220,7 +216,6 @@ DEPENDENCIES
   byebug
   caxlsx_rails
   factory_bot_rails
-  jsonapi-resources
   listen (~> 3.3)
   pg (~> 1.1)
   pry (~> 0.13.1)

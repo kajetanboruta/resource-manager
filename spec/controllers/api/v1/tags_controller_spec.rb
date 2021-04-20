@@ -150,7 +150,7 @@ RSpec.describe 'Tags', type: :request do
               name: 'ruby'
             }
           }
-        }.stringify_keys.to_json
+        }
 
         post_api('/api/v1/tags', params)
 
@@ -159,7 +159,44 @@ RSpec.describe 'Tags', type: :request do
         errors = json.fetch('errors')
         error1 = errors[0]
         expect(error1['status']).to eq('422')
-        expect(error1['detail']).to eq("tag-category - can't be blank")
+        expect(error1['detail']).to eq("Tag category can't be blank")
+      end
+    end
+
+    context 'when name parameter is blank' do
+      it 'returns 422 http code, unprocessable_entity' do
+        tag_category1 = create(:tag_category, name: 'programming language')
+        params = {
+          data: {
+            type: 'tags',
+            attributes: {
+              name: nil
+            },
+            relationships: {
+              'tag-category': {
+                data: {
+                  type: 'tag-categories',
+                  id: tag_category1.id
+                }
+              }
+            }
+          }
+        }
+
+        post_api('/api/v1/tags', params)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        errors = json.fetch('errors')
+        expect(errors).to match(
+          [
+            {
+              "status": '422',
+              "source": { "pointer": '/data/attributes/name' },
+              "detail": "name - can't be blank"
+            }
+          ]
+        )
       end
     end
   end
