@@ -2,12 +2,7 @@ module Api
   module V1
     class TagsController < ApplicationController
       def index
-        json = {
-          data: Tag.all.map do |tag|
-            TagSerializer.new(tag).to_hash
-          end
-        }.to_json
-
+        json = TagsJsonSerializer.new(Tag.all).dump
         render json: json
       end
 

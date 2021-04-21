@@ -13,7 +13,6 @@ class ErrorSerializer
         }
       end
     end
-    binding.pry
     {
       errors: errors_array
     }
