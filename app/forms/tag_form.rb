@@ -7,7 +7,6 @@ class TagForm < Patterns::Form
   private
 
   def persist
-    binding.pry
     resource.update(attributes)
   end
 end

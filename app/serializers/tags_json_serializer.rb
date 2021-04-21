@@ -6,27 +6,13 @@ class TagsJsonSerializer
   end
 
   def to_json(*_args)
-    tags_hash = tags.map do |tag|
-      {
-        type: 'tags',
-        id: tag.id,
-        links: { self: api_v1_tag_url(tag) },
-        attributes: { name: tag.name },
-        relationships: {
-          'tag-category': {
-            data: {
-              type: 'tag-categories',
-              id: tag.tag_category_id,
-              attributes: {
-                name: tag.tag_category.name
-              }
-            }
-          }
-        }
-      }
-    end
+    binding.pry
     {
-      data: tags_hash
+      links: {
+        self: api_v1_tags_url(page: { number: tags.current_page, size: tags.per_page }),
+        first: api_v1_tags_url(page: { number: 1, size: tags.per_page })
+      },
+      data: tags.map { |tag| JSON.parse(TagJsonSerializer.new(tag).to_json)['data'] }
     }.to_json
   end
 

@@ -26,6 +26,7 @@ gem 'caxlsx_rails'
 gem 'pry', '~> 0.13.1'
 gem 'rails-patterns'
 gem 'sidekiq', '~> 6.1.3'
+gem 'will_paginate', '~> 3.1.0'
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
 # gem 'rack-cors'

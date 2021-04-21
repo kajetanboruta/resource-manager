@@ -2,15 +2,16 @@ module Api
   module V1
     class TagsController < ApplicationController
       def index
-        json = TagsJsonSerializer.new(Tag.all).dump
-        render json: json
+        binding.pry
+        tags = Tag.paginate(page: params[:page][:number], per_page: params[:page][:size])
+
+        render json: TagsJsonSerializer.new(tags)
       end
 
       def show
         tag = Tag.find(params[:id])
-        json = TagJsonSerializer.new(tag).dump
 
-        render json: json
+        render json: TagJsonSerializer.new(tag)
       end
 
       def create
@@ -18,16 +19,7 @@ module Api
         if form.save
           render json: { data: TagSerializer.new(form.send(:resource)) }
         else
-          json = ErrorSerializer.new(form).serialize.to_json
-          # binding.pry
-          # json = {
-          #   errors: form.errors.map do |error|
-          #     binding.pry
-
-          #     { status: '422', detail: error.full_message }
-          #   end
-          # }
-          render json: json, status: 422
+          render json: ErrorSerializer.new(form).serialize, status: 422
         end
       end
 

@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'will_paginate/array'
 
 RSpec.describe 'Tags', type: :request do
   describe 'GET api/v1/tags' do
