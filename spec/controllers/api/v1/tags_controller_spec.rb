@@ -154,12 +154,20 @@ RSpec.describe 'Tags', type: :request do
 
         post_api('/api/v1/tags', params)
 
+        binding.pry
+
         expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
         errors = json.fetch('errors')
-        error1 = errors[0]
-        expect(error1['status']).to eq('422')
-        expect(error1['detail']).to eq("Tag category can't be blank")
+        expect(errors).to match(
+          [
+            {
+              "status": '422',
+              "source": { "pointer": '/data/attributes/tag-category' },
+              "detail": "Tag category - can't be blank"
+            }
+          ]
+        )
       end
     end
 
@@ -194,6 +202,41 @@ RSpec.describe 'Tags', type: :request do
               "status": '422',
               "source": { "pointer": '/data/attributes/name' },
               "detail": "name - can't be blank"
+            }
+          ]
+        )
+      end
+    end
+
+    context 'when tag-category and name parameter is not provided' do
+      it 'returns 422 http code, unprocessable_entity' do
+        params = {
+          data: {
+            type: nil,
+            attributes: {
+              name: nil
+            }
+          }
+        }
+
+        post_api('/api/v1/tags', params)
+
+        binding.pry
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        errors = json.fetch('errors')
+        expect(errors).to match(
+          [
+            {
+              "status": '422',
+              "source": { "pointer": '/data/attributes/name' },
+              "detail": "name - can't be blank"
+            },
+            {
+              "status": '422',
+              "source": { "pointer": '/data/attributes/tag-category' },
+              "detail": "Tag category - can't be blank"
             }
           ]
         )
