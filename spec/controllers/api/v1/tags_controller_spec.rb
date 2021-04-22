@@ -220,8 +220,6 @@ RSpec.describe 'Tags', type: :request do
 
         post_api('/api/v1/tags', params)
 
-        binding.pry
-
         expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
         errors = json.fetch('errors')

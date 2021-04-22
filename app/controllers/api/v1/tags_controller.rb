@@ -2,9 +2,7 @@ module Api
   module V1
     class TagsController < ApplicationController
       def index
-        binding.pry
-        tags = Tag.paginate(page: params[:page][:number], per_page: params[:page][:size])
-
+        tags = Tag.order(params[:sort]).paginate(page_params)
         render json: TagsJsonSerializer.new(tags)
       end
 
@@ -33,6 +31,15 @@ module Api
         unsafe_params['data']['relationships'].each_with_object(unsafe_params['data']['attributes']) do |(key, value), attributes|
           attributes["#{key.underscore}_id"] = value['data']['id']
         end
+      end
+
+      def page_params
+        return { page: 1 } if params[:page].blank?
+
+        {
+          page: params[:page][:number],
+          per_page: params[:page][:size]
+        }
       end
     end
   end
