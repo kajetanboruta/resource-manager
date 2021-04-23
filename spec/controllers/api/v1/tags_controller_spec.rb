@@ -70,7 +70,7 @@ RSpec.describe 'Tags', type: :request do
       tag_java = create(:tag, name: 'java', tag_category_id: tag_category2.id)
       tag_c = create(:tag, name: 'c', tag_category_id: tag_category2.id)
 
-      get "/api/v1/tags?filter[tag-category]=#{tag_category2.id}"
+      get "/api/v1/tags?filter[tag_category_id]=#{tag_category2.id}"
 
       expect(response).to have_http_status(:success)
       json = JSON.parse(response.body)
@@ -104,6 +104,7 @@ RSpec.describe 'Tags', type: :request do
     context 'when no tag_id matches given id' do
       it 'returns 404 http code, not found' do
         get '/api/v1/tags/1'
+
 
         expect(response).to have_http_status(:not_found)
         json = JSON.parse(response.body)
@@ -198,9 +199,9 @@ RSpec.describe 'Tags', type: :request do
         expect(errors).to match(
           [
             {
-              "status": '422',
-              "source": { "pointer": '/data/attributes/name' },
-              "detail": "name - can't be blank"
+              status: '422',
+              source: { pointer: '/data/attributes/name' },
+              detail: "name can't be blank"
             }
           ]
         )

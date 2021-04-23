@@ -2,20 +2,29 @@ module Api
   module V1
     class TagsController < ApplicationController
       def index
-        tags = Tag.order(params[:sort]).paginate(page_params)
+        tags = Tag.where(params.to_unsafe_hash[:filter]).order(params[:sort]).paginate(page_params)
         render json: TagsJsonSerializer.new(tags)
       end
 
       def show
         tag = Tag.find(params[:id])
-
         render json: TagJsonSerializer.new(tag)
+      rescue ActiveRecord::RecordNotFound
+        render json: {
+          errors: [
+            {
+              status: '404',
+              detail: "The record identified by #{params[:id]} could not be found."
+            }
+          ]
+        }, status: 404
       end
 
       def create
         form = TagForm.new(Tag.new, tag_params)
+
         if form.save
-          render json: { data: TagSerializer.new(form.send(:resource)) }
+          render json: TagJsonSerializer.new(form.send(:resource))
         else
           render json: ErrorSerializer.new(form).serialize, status: 422
         end
@@ -41,6 +50,7 @@ module Api
           per_page: params[:page][:size]
         }
       end
+
     end
   end
 end
