@@ -30,6 +30,38 @@ module Api
         end
       end
 
+      def update
+        form = TagForm.new(Tag.find(params[:id]), tag_params)
+
+        if form.save
+          render json: TagJsonSerializer.new(form.send(:resource))
+        else
+          render json: ErrorSerializer.new(form).serialize, status: 422
+        end
+      rescue ActiveRecord::RecordNotFound
+        render json: {
+          errors: [
+            {
+              status: '404',
+              detail: "The record identified by #{params[:id]} could not be found."
+            }
+          ]
+        }, status: 404
+      end
+
+      def destroy
+        render json: TagJsonSerializer.new(Tag.find(params[:id]).destroy)
+      rescue ActiveRecord::RecordNotFound
+        render json: {
+          errors: [
+            {
+              status: '404',
+              detail: "The record identified by #{params[:id]} could not be found."
+            }
+          ]
+        }, status: 404
+      end
+
       private
 
       def tag_params
@@ -50,7 +82,6 @@ module Api
           per_page: params[:page][:size]
         }
       end
-
     end
   end
 end

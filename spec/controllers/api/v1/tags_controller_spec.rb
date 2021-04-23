@@ -105,7 +105,6 @@ RSpec.describe 'Tags', type: :request do
       it 'returns 404 http code, not found' do
         get '/api/v1/tags/1'
 
-
         expect(response).to have_http_status(:not_found)
         json = JSON.parse(response.body)
         errors = json.fetch('errors')
@@ -159,12 +158,13 @@ RSpec.describe 'Tags', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
         json = JSON.parse(response.body)
         errors = json.fetch('errors')
+
         expect(errors).to match(
           [
             {
-              "status": '422',
-              "source": { "pointer": '/data/attributes/tag-category' },
-              "detail": "Tag category - can't be blank"
+              'status' => '422',
+              'source' => { 'pointer' => '/data/relationships/tag-category/data/id' },
+              'detail' => "Tag category - can't be blank"
             }
           ]
         )
@@ -199,9 +199,9 @@ RSpec.describe 'Tags', type: :request do
         expect(errors).to match(
           [
             {
-              status: '422',
-              source: { pointer: '/data/attributes/name' },
-              detail: "name can't be blank"
+              'status' => '422',
+              'source' => { 'pointer' => '/data/attributes/name' },
+              'detail' => "Name - can't be blank"
             }
           ]
         )
@@ -227,14 +227,14 @@ RSpec.describe 'Tags', type: :request do
         expect(errors).to match(
           [
             {
-              "status": '422',
-              "source": { "pointer": '/data/attributes/name' },
-              "detail": "name - can't be blank"
+              'status' => '422',
+              'source' => { 'pointer' => '/data/attributes/name' },
+              'detail' => "Name - can't be blank"
             },
             {
-              "status": '422',
-              "source": { "pointer": '/data/attributes/tag-category' },
-              "detail": "Tag category - can't be blank"
+              'status' => '422',
+              'source' => { 'pointer' => '/data/relationships/tag-category/data/id' },
+              'detail' => "Tag category - can't be blank"
             }
           ]
         )
@@ -245,7 +245,7 @@ RSpec.describe 'Tags', type: :request do
   describe 'PUT /tags/:id' do
     it 'updates tag by id' do
       tag1 = create(:tag, name: 'ruby')
-      headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
+      # headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
       params = {
         data: {
           type: 'tags',
@@ -254,10 +254,10 @@ RSpec.describe 'Tags', type: :request do
             name: 'ruby_new'
           }
         }
-      }.stringify_keys.to_json
+      }
 
       expect do
-        put "/api/v1/tags/#{tag1.id}", params: params, headers: headers
+        patch "/api/v1/tags/#{tag1.id}", params: params
       end
         .to change { tag1.reload.name }.from('ruby').to('ruby_new')
 
@@ -269,7 +269,6 @@ RSpec.describe 'Tags', type: :request do
     it 'updates tag relationship' do
       tag_category1 = create(:tag_category, name: 'new version pack')
       tag1 = create(:tag, name: 'ruby', tag_category: tag_category1)
-      headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
       params = {
         data: {
           type: 'tags',
@@ -286,18 +285,18 @@ RSpec.describe 'Tags', type: :request do
             }
           }
         }
-      }.stringify_keys.to_json
+      }
 
-      put "/api/v1/tags/#{tag1.id}", params: params, headers: headers
+      patch "/api/v1/tags/#{tag1.id}", params: params
 
       expect(response).to have_http_status(:success)
       json = JSON.parse(response.body)
-      expect(json['data']['attributes']['tag-category-id']).to eq(tag_category1.id)
+
+      expect(json['data']['relationships']['tag-category']['data']['id']).to eq(tag_category1.id)
     end
 
     context 'when no tag_id matches given id' do
       it 'returns 404 http code, not found' do
-        headers = { 'ACCEPT' => 'application/vnd.api+json', 'CONTENT_TYPE' => 'application/vnd.api+json' }
         params = {
           data: {
             type: 'tags',
@@ -306,9 +305,9 @@ RSpec.describe 'Tags', type: :request do
               name: 'ruby_new'
             }
           }
-        }.stringify_keys.to_json
+        }
 
-        put '/api/v1/tags/1', params: params, headers: headers
+        patch '/api/v1/tags/1', params: params
 
         expect(response).to have_http_status(:not_found)
         json = JSON.parse(response.body)
@@ -325,7 +324,6 @@ RSpec.describe 'Tags', type: :request do
       it 'returns 404 http code, not_found' do
         delete '/api/v1/tags/1'
 
-        expect(response).to have_http_status(:not_found)
         json = JSON.parse(response.body)
         errors = json.fetch('errors')
         error1 = errors[0]
