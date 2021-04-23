@@ -1,15 +1,7 @@
 module Api
   module V1
     class TagsController < ApplicationController
-      def index
-        tags = Tag.where(params.to_unsafe_hash[:filter]).order(params[:sort]).paginate(page_params)
-        render json: TagsJsonSerializer.new(tags)
-      end
-
-      def show
-        tag = Tag.find(params[:id])
-        render json: TagJsonSerializer.new(tag)
-      rescue ActiveRecord::RecordNotFound
+      rescue_from ActiveRecord::RecordNotFound do |_exception|
         render json: {
           errors: [
             {
@@ -18,6 +10,15 @@ module Api
             }
           ]
         }, status: 404
+      end
+
+      def index
+        tags = Tag.where(params.to_unsafe_hash[:filter]).order(params[:sort]).paginate(page_params)
+        render json: TagsJsonSerializer.new(tags)
+      end
+
+      def show
+        render json: TagJsonSerializer.new(tag)
       end
 
       def create
@@ -31,35 +32,17 @@ module Api
       end
 
       def update
-        form = TagForm.new(Tag.find(params[:id]), tag_params)
+        form = TagForm.new(tag, tag_params)
 
         if form.save
           render json: TagJsonSerializer.new(form.send(:resource))
         else
           render json: ErrorSerializer.new(form).serialize, status: 422
         end
-      rescue ActiveRecord::RecordNotFound
-        render json: {
-          errors: [
-            {
-              status: '404',
-              detail: "The record identified by #{params[:id]} could not be found."
-            }
-          ]
-        }, status: 404
       end
 
       def destroy
-        render json: TagJsonSerializer.new(Tag.find(params[:id]).destroy)
-      rescue ActiveRecord::RecordNotFound
-        render json: {
-          errors: [
-            {
-              status: '404',
-              detail: "The record identified by #{params[:id]} could not be found."
-            }
-          ]
-        }, status: 404
+        render json: TagJsonSerializer.new(tag.destroy)
       end
 
       private
@@ -81,6 +64,10 @@ module Api
           page: params[:page][:number],
           per_page: params[:page][:size]
         }
+      end
+
+      def tag
+        @tag ||= Tag.find(params[:id])
       end
     end
   end
