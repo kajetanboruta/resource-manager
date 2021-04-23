@@ -12,7 +12,7 @@ RSpec.describe 'Tags', type: :request do
             sender: 'test@sender.com'
           }
         }
-      }.stringify_keys.to_json
+      }
 
       post_api('/api/v1/contacts_form', params)
 
@@ -21,7 +21,7 @@ RSpec.describe 'Tags', type: :request do
   end
 
   def post_api(path, params)
-    post path, params: params, headers: headers
+    post path, params: params
   end
 
   def headers

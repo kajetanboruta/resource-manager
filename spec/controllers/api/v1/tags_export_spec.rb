@@ -9,20 +9,20 @@ RSpec.describe 'Tags_Export', type: :request do
             email: 'test@test.com'
           }
         }
-      }.stringify_keys.to_json
+      }
       allow(SendExportedTagsWorker).to receive(:perform_at)
 
       travel 1.day do
         post_api('/api/v1/tags_export', params)
 
-        expect(response).to have_http_status(:success)  
+        expect(response).to have_http_status(:success)
         expect(SendExportedTagsWorker).to have_received(:perform_at).with(3.minutes.from_now, email: 'test@test.com')
       end
     end
   end
 
   def post_api(path, params)
-    post path, params: params, headers: headers
+    post path, params: params
   end
 
   def headers
