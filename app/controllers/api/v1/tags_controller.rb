@@ -13,7 +13,9 @@ module Api
       end
 
       def index
-        tags = Tag.where(params.to_unsafe_hash[:filter]).order(params[:sort]).paginate(page_params)
+        # tags = Tag.where(params.to_unsafe_hash[:filter]).order(params[:sort]).paginate(page_params)
+
+        tags = TagFilterQuery.call(params.to_unsafe_hash[:filter]).paginate(page_params)
         render json: TagsJsonSerializer.new(tags)
       end
 

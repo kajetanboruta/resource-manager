@@ -5,7 +5,7 @@ class DeliverMailOfExportedTags < Patterns::Service
   end
 
   def call
-    UserMailer.send_export(email, tags).deliver_now
+    TagExportMailer.send_export(email, tags).deliver_now
   end
 
   private

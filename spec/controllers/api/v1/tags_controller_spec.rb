@@ -88,6 +88,19 @@ RSpec.describe 'Tags', type: :request do
       expect(tag3['links']['self']).to eq "http://www.example.com/api/v1/tags/#{tag_c.id}"
       expect(tag3['attributes']['name']).to eq 'c'
     end
+
+    it 'filter by name' do
+      tag_ruby = create(:tag, name: 'ruby')
+
+      get "/api/v1/tags?filter[name]=#{tag_ruby.name}"
+
+      expect(response).to have_http_status(:success)
+      json = JSON.parse(response.body)
+      tags = json['data']
+      tag1 = tags[0]
+      expect(tag1['type']).to eq 'tags'
+      expect(tag1['attributes']['name']).to eq 'ruby'
+    end
   end
 
   describe 'GET /tags/:id' do

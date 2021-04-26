@@ -1,4 +1,4 @@
-class UserMailer < ApplicationMailer
+class TagExportMailer < ApplicationMailer
   def send_export(email, tags)
     xlsx = render_to_string layout: false,
                             handlers: [:axlsx],
